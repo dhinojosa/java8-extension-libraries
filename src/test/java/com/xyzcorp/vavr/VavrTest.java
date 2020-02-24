@@ -2,13 +2,14 @@ package com.xyzcorp.vavr;
 
 import com.xyzcorp.models.Employee;
 import com.xyzcorp.models.Manager;
-import io.vavr.collection.List;
-import io.vavr.collection.Map;
-import io.vavr.collection.Stream;
-import io.vavr.collection.Traversable;
+import io.vavr.Function1;
+import io.vavr.Tuple;
+import io.vavr.Tuple3;
+import io.vavr.collection.*;
 import io.vavr.control.Try;
 import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
 import java.util.Random;
 
 
@@ -41,8 +42,7 @@ public class VavrTest {
     }
 
     @Test
-    void testCreditCardsAlternate() {
-
+    void testFlatMap() {
         Employee brian = new Employee("Brian", "Sletten", 40000);
         Employee chandra = new Employee("Chandra", "Gunter", 42000);
         Employee nate = new Employee("Nate", "Schutta", 43000);
@@ -142,8 +142,8 @@ public class VavrTest {
         if (n == 1) return false;
         else
             return Stream
-                    .range(2, (int)(Math.sqrt(n) + 1))
-                    .forAll(i -> n % i != 0);
+                .range(2, (int) (Math.sqrt(n) + 1))
+                .forAll(i -> n % i != 0);
     }
 
     @Test
@@ -155,5 +155,25 @@ public class VavrTest {
         System.out.println(isPrime(11));
         System.out.println(isPrime(5449));
         System.out.println(isPrime(5550));
+    }
+
+
+
+    public Seq<Tuple3<String, String, Integer>> comboWords(Seq<String> seq) {
+        return seq.permutations()
+           .flatMap(s -> s.combinations(2))
+           .filter(xs -> !Objects.equals(xs.head(), xs.last()))
+           .map(xs -> Tuple.of(xs.head(), xs.last()))
+           .toList()
+           .distinct()
+           .map(t2 -> Tuple.of(t2._1, t2._2,
+               seq.groupBy(Function1.identity()).apply(t2._1).size() *
+                   seq.groupBy(Function1.identity()).apply(t2._2).size()));
+    }
+
+    @Test
+    void testCombosOfWords() {
+        var seq = List.of("Hello", "Rock", "Paper", "Scissors", "Rock");
+        System.out.println(comboWords(seq));
     }
 }

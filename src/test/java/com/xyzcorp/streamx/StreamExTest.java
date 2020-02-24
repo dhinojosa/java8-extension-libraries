@@ -1,14 +1,15 @@
 package com.xyzcorp.streamx;
 
+import io.vavr.Tuple;
 import one.util.streamex.EntryStream;
 import one.util.streamex.IntStreamEx;
 import one.util.streamex.StreamEx;
+import org.jooq.lambda.Seq;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class StreamExTest {
 
@@ -111,4 +112,35 @@ public class StreamExTest {
         System.out.println(isPrime(5449));
         System.out.println(isPrime(5550));
     }
+
+    @Test
+    void testCombinations() {
+        StreamEx.ofCombinations(5,5).map(Arrays::toString).forEach(System.out::println);
+    }
+
+    @Test
+    public void testComboWords() {
+        comboWords(List.of("A", "B", "A"));
+    }
+
+    //Need Java 8 Streams to rescue the situation
+    public String comboWords(List<String> seq) {
+        String joining =
+            StreamEx.ofPermutations(4)
+                    .map(ix -> StreamEx.of(Arrays.stream(ix).boxed().map(seq::get)))
+                    .joining(",");
+        return joining;
+
+        //StreamEx.ofPermutations(seq.size()).map(ints -> StreamEx.of(ints).joining(","));
+//        return seq.permutations()
+//                  .flatMap(s -> s.combinations(2))
+//                  .filter(xs -> !Objects.equals(xs.head(), xs.last()))
+//                  .map(xs -> Tuple.of(xs.head(), xs.last()))
+//                  .toList()
+//                  .distinct()
+//                  .map(t2 -> Tuple.of(t2._1, t2._2,
+//                      seq.groupBy(Function1.identity()).apply(t2._1).size() *
+//                          seq.groupBy(Function1.identity()).apply(t2._2).size()));
+    }
+
 }
